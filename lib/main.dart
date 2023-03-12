@@ -1,5 +1,5 @@
 import 'package:calendar/database/note_database.dart';
-import 'package:calendar/database/notedao.dart';
+
 import 'package:calendar/views/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,7 +33,6 @@ class MyApp extends StatelessWidget {
           } else {
             return const Center(child: CircularProgressIndicator());
           }
-         
         },
       ),
     );

@@ -4,13 +4,11 @@ import 'package:calendar/views/add_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 
 import '../Helper/notification.dart';
 import '../Helper/theme_service.dart';
 
 import '../utils/dimensions.dart';
-import '../widgets/note_list.dart';
 
 import 'note_details.dart';
 import 'search_page.dart';
@@ -46,6 +44,14 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        backgroundColor: Get.isDarkMode ? Colors.white : Colors.black,
+        width: MediaQuery.of(context).size.width / 3,
+        child: Text(
+          "Drawer",
+          style: TextStyle(color: Get.isDarkMode ? Colors.black : Colors.white),
+        ),
+      ),
       //backgroundColor: Colors.blueGrey.withOpacity(0.7),
       appBar: AppBar(
         backgroundColor: context.theme.colorScheme.background,
@@ -92,7 +98,6 @@ class _HomeState extends State<Home> {
                       notes.title,
                       notes.message,
                       notes.id.toString(),
-                      
                     ],
                     builder: (notes) => Card(
                       child: ListTile(
@@ -102,10 +107,44 @@ class _HomeState extends State<Home> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         leading: OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Get.to(const NoteDetailScreen(), arguments: notes);
+                          },
                           child: Text('${notes.id} '),
                         ),
-                        trailing: TextButton(onPressed: (){}, child:const Icon(Icons.more_horiz)),
+                        trailing: TextButton(
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: const Text(
+                                          "Are you want to update this note? \n(OR) Are you sure to delete this note?"),
+                                      content: const Text(
+                                          "If you not sure to do both , click cancel to go back search!"),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Get.to(UpdateScreen(),
+                                                  arguments: notes);
+                                            },
+                                            child: const Text("Update")),
+                                        TextButton(
+                                            onPressed: () {
+                                              noteDao.deleteNote(notes);
+                                              Get.to(Home(noteDao));
+                                            },
+                                            child: const Text("Delete")),
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text("Cancel")),
+                                      ],
+                                    );
+                                  });
+                            },
+                            child: const Icon(Icons.more_horiz)),
                       ),
                     ),
                   ),
@@ -146,12 +185,11 @@ class _HomeState extends State<Home> {
                   _deleteAllNote(context);
                 },
                 child: Text(
-                      'Delete All ',
-                      style: TextStyle(
-                          color: Get.isDarkMode ? Colors.white : Colors.black),
-                    ),
+                  'Delete All ',
+                  style: TextStyle(
+                      color: Get.isDarkMode ? Colors.white : Colors.black),
                 ),
-              
+              ),
             ],
           ),
           const SizedBox(
@@ -171,7 +209,7 @@ class _HomeState extends State<Home> {
       builder: (_, data) {
         if (data.hasData) {
           notes = data.data!;
-          notes = data.data!;
+
           return ListView.builder(
             itemCount: data.data!.length,
             itemBuilder: (context, position) {
